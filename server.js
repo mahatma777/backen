@@ -40,10 +40,21 @@ app.get("/", (req, res) => {
 });
 
 // Example API: Fetch all sermons
-app.get("/sermons", (req, res) => {
-  db.query("SELECT * FROM sermons", (err, results) => {
+// app.get("/sermons", (req, res) => {
+//   db.query("SELECT * FROM sermons", (err, results) => {
+//     if (err) {
+//       console.error("❌ Error fetching sermons:", err.message);
+//       return res.status(500).json({ error: "Database error" });
+//     }
+//     res.json(results);
+//   });
+// });
+
+
+app.get("/articles", (req, res) => {
+  db.query("SELECT * FROM articles", (err, results) => {
     if (err) {
-      console.error("❌ Error fetching sermons:", err.message);
+      console.error("❌ Error fetching Articles:", err.message);
       return res.status(500).json({ error: "Database error" });
     }
     res.json(results);
@@ -51,24 +62,24 @@ app.get("/sermons", (req, res) => {
 });
 
 // Example API: Add a sermon
-app.post("/sermons", (req, res) => {
-  const { title, preacher, audioUrl } = req.body;
-  if (!title || !preacher || !audioUrl) {
-    return res.status(400).json({ error: "Missing fields" });
-  }
+// app.post("/sermons", (req, res) => {
+//   const { title, preacher, audioUrl } = req.body;
+//   if (!title || !preacher || !audioUrl) {
+//     return res.status(400).json({ error: "Missing fields" });
+//   }
 
-  db.query(
-    "INSERT INTO sermons (title, preacher, audioUrl) VALUES (?, ?, ?)",
-    [title, preacher, audioUrl],
-    (err, result) => {
-      if (err) {
-        console.error("❌ Error inserting sermon:", err.message);
-        return res.status(500).json({ error: "Database error" });
-      }
-      res.json({ id: result.insertId, title, preacher, audioUrl });
-    }
-  );
-});
+//   db.query(
+//     "INSERT INTO sermons (title, preacher, audioUrl) VALUES (?, ?, ?)",
+//     [title, preacher, audioUrl],
+//     (err, result) => {
+//       if (err) {
+//         console.error("❌ Error inserting sermon:", err.message);
+//         return res.status(500).json({ error: "Database error" });
+//       }
+//       res.json({ id: result.insertId, title, preacher, audioUrl });
+//     }
+//   );
+// });
 
 // Start server
 app.listen(PORT, () => {
