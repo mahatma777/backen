@@ -61,6 +61,17 @@ app.get("/articles", (req, res) => {
   });
 });
 
+
+app.get("/pods", (req, res) => {
+  db.query("SELECT * FROM pods", (err, results) => {
+    if (err) {
+      console.error("❌ Error fetching Articles:", err.message);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.json(results);
+  });
+});
+
 // Example API: Add a sermon
 // app.post("/sermons", (req, res) => {
 //   const { title, preacher, audioUrl } = req.body;
