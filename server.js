@@ -23,7 +23,7 @@ const pool = mysql.createPool({
 // GET all sermons
 app.get("/sermon", async (req, res) => {
   try {
-    const [rows] = await pool.query("SELECT * FROM sermon_records ORDER BY id DESC");
+    const [rows] = await pool.query("SELECT * FROM sermon_recordsgit init ORDER BY id DESC");
     res.json(rows);
   } catch (err) {
     console.error(err);
