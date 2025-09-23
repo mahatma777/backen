@@ -44,7 +44,18 @@ app.get('/', (req, res) => {
 });
 
 // Example: Get all users from 'users' table
-app.get('/sermon', (req, res) => {
+app.get('/sermonlimit', (req, res) => {
+  db.query('SELECT * FROM sermon_records order by id LIMIT 10', (err, results) => {
+    if (err) {
+      console.error('Error fetching sermon records:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(results);
+  });
+});
+
+
+app.get('/sermons', (req, res) => {
   db.query('SELECT * FROM sermon_records', (err, results) => {
     if (err) {
       console.error('Error fetching sermon records:', err);
