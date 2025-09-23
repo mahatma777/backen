@@ -77,6 +77,17 @@ app.get('/articles', (req, res) => {
 });
 
 
+app.get('/podsdata', (req, res) => {
+  db.query('SELECT * FROM podcasts ORDER BY id DESC LIMIT 10', (err, results) => {
+    if (err) {
+      console.error('Error fetching  records:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(results);
+  });
+});
+
+
 // Example: Create a new user
 app.post('/users', (req, res) => {
   const { name, email } = req.body;
