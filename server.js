@@ -54,6 +54,18 @@ app.get('/sermon', (req, res) => {
   });
 });
 
+
+app.get('/articles', (req, res) => {
+  db.query('SELECT * FROM articles', (err, results) => {
+    if (err) {
+      console.error('Error fetching sermon records:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(results);
+  });
+});
+
+
 // Example: Create a new user
 app.post('/users', (req, res) => {
   const { name, email } = req.body;
