@@ -1,98 +1,113 @@
-require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const mysql = require("mysql2");
+const mysql = require("mysql2/promise");
+require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
-
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// MySQL Connection
-// const db = mysql.createConnection({
-//   host: process.env.DB_HOST || "localhost",
-//   user: process.env.DB_USER || "root",
-//   password: process.env.DB_PASS || "",
-//   database: process.env.DB_NAME || "ggn",
-// });
-
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
+// Database connection pool
+const pool = mysql.createPool({
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+  database: process.env.DB_NAME || "taldata",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
-// Test DB connection
-db.connect((err) => {
-  if (err) {
-    console.error("❌ MySQL connection failed:", err.message);
-  } else {
-    console.log("✅ Connected to MySQL database");
+// ---------------- SERMONS ---------------- //
+
+// GET all sermons
+app.get("/sermon", async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT * FROM sermon_records ORDER BY id DESC");
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Database error" });
   }
 });
 
-// Default route
-app.get("/", (req, res) => {
-  res.send("📡 Sermon backend is running ✅");
+// POST new sermon
+app.post("/sermon", async (req, res) => {
+  try {
+    const { sermon_title, file } = req.body;
+    if (!sermon_title) return res.status(400).json({ error: "sermon_title required" });
+
+    const [result] = await pool.query(
+      "INSERT INTO sermons (sermon_title, file) VALUES (?, ?)",
+      [sermon_title, file]
+    );
+    res.json({ id: result.insertId, sermon_title, file });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Database error" });
+  }
 });
 
-// Example API: Fetch all sermons
-// app.get("/sermons", (req, res) => {
-//   db.query("SELECT * FROM sermons", (err, results) => {
-//     if (err) {
-//       console.error("❌ Error fetching sermons:", err.message);
-//       return res.status(500).json({ error: "Database error" });
-//     }
-//     res.json(results);
-//   });
-// });
+// ---------------- PODCASTS ---------------- //
 
-
-app.get("/articles", (req, res) => {
-  db.query("SELECT * FROM articles", (err, results) => {
-    if (err) {
-      console.error("❌ Error fetching Articles:", err.message);
-      return res.status(500).json({ error: "Database error" });
-    }
-    res.json(results);
-  });
+// GET all podcasts
+app.get("/podsdata", async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT * FROM podcasts ORDER BY created_at DESC");
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Database error" });
+  }
 });
 
+// POST new podcast
+app.post("/podsdata", async (req, res) => {
+  try {
+    const { podname, author, thumbnail } = req.body;
+    if (!podname) return res.status(400).json({ error: "podname required" });
 
-app.get("/pods", (req, res) => {
-  db.query("SELECT * FROM pods", (err, results) => {
-    if (err) {
-      console.error("❌ Error fetching Articles:", err.message);
-      return res.status(500).json({ error: "Database error" });
-    }
-    res.json(results);
-  });
+    const [result] = await pool.query(
+      "INSERT INTO podcasts (podname, author, thumbnail) VALUES (?, ?, ?)",
+      [podname, author, thumbnail]
+    );
+    res.json({ id: result.insertId, podname, author, thumbnail });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Database error" });
+  }
 });
 
-// Example API: Add a sermon
-// app.post("/sermons", (req, res) => {
-//   const { title, preacher, audioUrl } = req.body;
-//   if (!title || !preacher || !audioUrl) {
-//     return res.status(400).json({ error: "Missing fields" });
-//   }
+// ---------------- ARTICLES ---------------- //
 
-//   db.query(
-//     "INSERT INTO sermons (title, preacher, audioUrl) VALUES (?, ?, ?)",
-//     [title, preacher, audioUrl],
-//     (err, result) => {
-//       if (err) {
-//         console.error("❌ Error inserting sermon:", err.message);
-//         return res.status(500).json({ error: "Database error" });
-//       }
-//       res.json({ id: result.insertId, title, preacher, audioUrl });
-//     }
-//   );
-// });
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+// GET all articles
+app.get("/articles", async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT * FROM articles ORDER BY created_at DESC");
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Database error" });
+  }
 });
+
+// POST new article
+app.post("/articles", async (req, res) => {
+  try {
+    const { title, author, thumbnail } = req.body;
+    if (!title) return res.status(400).json({ error: "title required" });
+
+    const [result] = await pool.query(
+      "INSERT INTO articles (title, author, thumbnail) VALUES (?, ?, ?)",
+      [title, author, thumbnail]
+    );
+    res.json({ id: result.insertId, title, author, thumbnail });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+// ---------------- SERVER ---------------- //
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
