@@ -27,7 +27,7 @@ const db = mysql.createConnection({
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
-  port: 3306
+  // port: 3306
 });
 
 db.connect((err) => {
@@ -45,7 +45,7 @@ app.get('/', (req, res) => {
 
 // Example: Get all users from 'users' table
 app.get('/sermonlimit', (req, res) => {
-  db.query('SELECT * FROM sermon_records order by id LIMIT 10', (err, results) => {
+  db.query('SELECT * FROM sermon_records', (err, results) => {
     if (err) {
       console.error('Error fetching sermon records:', err);
       return res.status(500).json({ error: 'Database error' });
@@ -86,6 +86,20 @@ app.get('/podsdata', (req, res) => {
     res.json(results);
   });
 });
+
+
+
+app.get('/podsdatacat', (req, res) => {
+  db.query('SELECT * FROM podcast_cat', (err, results) => {
+    if (err) {
+      console.error('Error fetching  records:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(results);
+  });
+});
+
+
 
 
 // Example: Create a new user
